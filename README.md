@@ -162,6 +162,7 @@ content : 작성내용
   - GET
   - 내 포스팅 보기
     - 페이지당 25개씩 출력
+    - 좋아요 표시
   - 테스트 경로 : http://127.0.0.1:5000/posting
 ``` python
 # Headers에 토큰 입력
@@ -177,6 +178,7 @@ content : 작성내용
   - GET
   - 친구들의 포스팅 보기
     - 페이지당 25개씩 출력
+    - 좋아요 표시
   - 테스트 경로 : http://127.0.0.1:5000/posting/follow
 ``` python
 # Headers에 토큰 입력
