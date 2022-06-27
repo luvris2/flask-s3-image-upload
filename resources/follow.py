@@ -57,12 +57,6 @@ class followResource(Resource) :
         try :
             connection = get_connection()
             user_id = get_jwt_identity()
-            # query = '''
-            #             select * from posting p
-            #             join follow f
-            #             on p.userId = f.followeeId
-            #             where followerId = %s;
-            #         '''
             query = '''
                         select  u.name as '작성자', p.imageUrl as '사진', p.content as '포스팅 내용',
                         p.createdAt as '작성일', p.updatedAt as '수정일', count(l.postingId) as '좋아요' from posting p

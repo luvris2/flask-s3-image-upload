@@ -1,7 +1,6 @@
-from unittest import result
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 import mysql.connector
 from ref.mysql_connection import get_connection
 from ref.config import Config
@@ -129,11 +128,12 @@ class PostingInsertListResource(Resource) :
         try :
             connection = get_connection()
             userId = get_jwt_identity()
-            query = ''' select * from posting where userId=%s'''
-            # query = '''
-            #             select * from posting p join users u
-            #             on u.id=p.userId where p.userId=%s;
-            #         '''
+            page = request.args.get('page')
+            page = str((int(page)-1)*25)
+            query = ''' select p.*, count(l.postingId) as '좋아요' from posting p
+                        left join likes l on l.postingId=p.id
+                        where p.userId = %s group by p.id
+                        limit ''' + page + ''', 25;'''
             record = (userId, ) # tuple
             cursor = connection.cursor(dictionary=True)
             cursor.execute(query, record)
@@ -162,6 +162,46 @@ class PostingInsertListResource(Resource) :
         #         result_list[x]['updatedAt'], result_list[x]['imageUrl'], result_list[x]['content']))\
         #         (x) for x in range(int(len(result_list)))]
         
+        }, 200
+
+class FollowPostingListResource(Resource) :
+    # 팔로우한 친구의 메모 함께 보기
+    @jwt_required()
+    def get(self) :
+        try :
+            connection = get_connection()
+            user_id = get_jwt_identity()
+            page = request.args.get('page')
+            page = str((int(page)-1)*25)
+            query = '''
+                        select  u.name as '작성자', p.imageUrl as '사진', p.content as '포스팅 내용',
+                        p.createdAt as '작성일', p.updatedAt as '수정일', count(l.postingId) as '좋아요' from posting p
+                        join follow f on p.userId = f.followeeId
+                        join users u on u.id=f.followeeId
+                        left join likes l on l.postingId=p.id
+                        where f.followerId = %s group by p.id
+                        limit ''' + page + ''', 25;'''
+            record = (user_id, ) # tuple
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query, record)
+            result_list = cursor.fetchall()
+            if len(result_list) == 0 :
+                return { "알림" : "팔로우한 친구가 없습니다."}
+            i = 0
+            for record in result_list :
+                result_list[i]['작성일'] = record['작성일'].isoformat()
+                result_list[i]['수정일'] = record['수정일'].isoformat()
+                i += 1
+            cursor.close()
+            connection.close()
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+            return {"error" : str(e)}, 503 #HTTPStatus.SERVICE_UNAVAILABLE
+
+        return{
+            "메모 내용" : result_list
         }, 200
 
 class PostingReadUpdateDeleteResource(Resource) :

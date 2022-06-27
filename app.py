@@ -2,14 +2,12 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from ref.config import Config
+
 from resources.likes import LikesResource
-
 from resources.tag import TagSearchResource
-
 from resources.user import UserRegisterResource, UserLoginResource, UserLogoutResource, jwt_blocklist
-
 from resources.image import FileUploadResource
-from resources.posting import PostingInsertListResource, PostingReadUpdateDeleteResource
+from resources.posting import FollowPostingListResource, PostingInsertListResource, PostingReadUpdateDeleteResource
 from resources.rekognition import ObjectDetectionResource
 from resources.follow import followResource
 
@@ -35,16 +33,13 @@ api = Api(app)
 api.add_resource(UserRegisterResource, '/users/register')
 api.add_resource(UserLoginResource, '/users/login')
 api.add_resource(UserLogoutResource, '/users/logout')
-
 api.add_resource(FileUploadResource, '/upload')
 api.add_resource(PostingInsertListResource, '/posting')
+api.add_resource(FollowPostingListResource, '/posting/follow')
 api.add_resource(PostingReadUpdateDeleteResource, '/posting/<int:post_id>')
 api.add_resource(ObjectDetectionResource, '/object_detection')
-
 api.add_resource(TagSearchResource, '/posting/search/tag')
-
 api.add_resource(followResource, '/follow')
-
 api.add_resource(LikesResource, '/likes/<int:post_id>')
 
 if __name__ == '__main__' :

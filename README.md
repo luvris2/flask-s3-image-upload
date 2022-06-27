@@ -53,10 +53,10 @@
 # 파일 구조
 - app.py : API 메인 파일
   - resources 폴더
-    - follow.py : 친구 추가, 해제, 친구들의 포스팅 보기
+    - follow.py : 친구 추가, 해제
     - image.py : 이미지 업로드 테스트 소스 코드
     - rekognition.py : 이미지 객체 탐지 테스트 소스 코드
-    - posting.py : 포스팅 작성, 수정, 삭제, 내 포스팅 보기, 이미지 업로드시 이미지 객체를 탐지하여 태그 자동 생성
+    - posting.py : 포스팅 작성, 수정, 삭제, 내 포스팅 보기, 친구들의 포스팅 보기,이미지 업로드시 이미지 객체를 탐지하여 태그 자동 생성
     - tag.py : 태그 검색
     - user.py : 회원가입, 로그인, 로그아웃
     - likes.py : 좋아요 표시, 좋아요 해제
@@ -161,12 +161,33 @@ content : 작성내용
 - class PostingInsertListResource(Resource)
   - GET
   - 내 포스팅 보기
+    - 페이지당 25개씩 출력
   - 테스트 경로 : http://127.0.0.1:5000/posting
 ``` python
 # Headers에 토큰 입력
 "KEY" : "Authorization"
 "VALUE" Bearer eyJ0eXAiO~생략
+
+# Params
+"KEY" : page
+"VALUE" : 페이지수
 ```
+
+- class FollowPostingListResource(Resource)
+  - GET
+  - 친구들의 포스팅 보기
+    - 페이지당 25개씩 출력
+  - 테스트 경로 : http://127.0.0.1:5000/posting/follow
+``` python
+# Headers에 토큰 입력
+"KEY" : "Authorization"
+"VALUE" Bearer eyJ0eXAiO~생략
+
+# Params
+"KEY" : page
+"VALUE" : 페이지수
+```
+
 - class PostingReadUpdateDeleteResource(Resource)
   - GET
   - 포스팅 상세 보기
@@ -232,15 +253,6 @@ content : 작성내용
 
 # json으로 입력
 {  "email" : "친구끊기 할 이메일" }
-```
-- class followResource(Resource)
-  - GET
-  - 친구의 포스팅 보기
-  - 테스트 경로 : http://127.0.0.1:5000/follow
-``` python
-# Headers에 토큰 입력
-"KEY" : "Authorization"
-"VALUE" Bearer eyJ0eXAiO~생략
 ```
  ---
 **tag.py**
