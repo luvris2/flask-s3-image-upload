@@ -173,15 +173,21 @@ class FollowPostingListResource(Resource) :
             user_id = get_jwt_identity()
             page = request.args.get('page')
             page = str((int(page)-1)*25)
+            
             query = '''
                         select  u.name as '작성자', p.imageUrl as '사진', p.content as '포스팅 내용',
-                        p.createdAt as '작성일', p.updatedAt as '수정일', count(l.postingId) as '좋아요' from posting p
+                        p.createdAt as '작성일', p.updatedAt as '수정일',
+                        if(l.userId is null, 0,1) as '나의 좋아요 여부',
+                        count(l2.postingId) as '좋아요'
+                        from posting p
                         join follow f on p.userId = f.followeeId
-                        join users u on u.id=f.followeeId
-                        left join likes l on l.postingId=p.id
+                        join users u on u.id=p.userId
+                        left join likes l on l.postingId=p.id and l.userId = %s
+                        left join likes l2 on l2.postingId=p.id
                         where f.followerId = %s group by p.id
                         limit ''' + page + ''', 25;'''
-            record = (user_id, ) # tuple
+
+            record = (user_id, user_id)
             cursor = connection.cursor(dictionary=True)
             cursor.execute(query, record)
             result_list = cursor.fetchall()
