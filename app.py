@@ -8,7 +8,7 @@ from resources.tag import TagSearchResource
 from resources.user import UserRegisterResource, UserLoginResource, UserLogoutResource, jwt_blocklist
 
 from resources.image import FileUploadResource
-from resources.posting import PostingResource
+from resources.posting import PostingInsertListResource, PostingUpdateDeleteResource
 from resources.rekognition import ObjectDetectionResource
 from resources.follow import followResource
 
@@ -36,7 +36,8 @@ api.add_resource(UserLoginResource, '/users/login')
 api.add_resource(UserLogoutResource, '/users/logout')
 
 api.add_resource(FileUploadResource, '/upload')
-api.add_resource(PostingResource, '/posting')
+api.add_resource(PostingInsertListResource, '/posting')
+api.add_resource(PostingUpdateDeleteResource, '/posting/<int:post_id>')
 api.add_resource(ObjectDetectionResource, '/object_detection')
 
 api.add_resource(TagSearchResource, '/posting/search/tag')

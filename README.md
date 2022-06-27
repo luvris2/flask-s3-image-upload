@@ -135,7 +135,7 @@ def get_connection() :
 
 ---
  **posting.py**
-- class PostingResource(Resource)
+- class PostingInsertListResource(Resource)
   - POST
   - 이미지와 함께 포스팅 작성
     - 이미지는 AWS S3 드라이브에 저장
@@ -150,10 +150,25 @@ def get_connection() :
 photo : 이미지 파일 업로드
 content : 작성내용 
 ```
-- class PostingResource(Resource)
+- class PostingInsertListResource(Resource)
+  - GET
+  - 내 포스팅 보기
+  - 테스트 경로 : http://127.0.0.1:5000/posting
+``` python
+# Headers에 토큰 입력
+"KEY" : "Authorization"
+"VALUE" Bearer eyJ0eXAiO~생략
+```
+- class PostingUpdateDeleteResource(Resource)
   - PUT
   - 포스팅 내용 수정
-  - 테스트 경로 : http://127.0.0.1:5000/posting
+    - 이미지가 없을 경우
+        - 내용만 수정
+    - 이미지가 있을 경우
+        - 이미지와 내용 수정
+        - 기존 태그 삭제 후 새로운 태그로 변경
+        - DB에서의 기존 태그도 같이 삭제
+  - 테스트 경로 : http://127.0.0.1:5000/posting/<int:post_id>
 ``` python
 # Headers에 토큰 입력
 "KEY" : "Authorization"
@@ -162,21 +177,11 @@ content : 작성내용
 # form-data으로 입력
 photo : 이미지 파일 업로드
 content : 작성내용 
-id : 사용자 고유 ID
 ```
-- class PostingResource(Resource)
+- class PostingUpdateDeleteResource(Resource)
   - DELETE
   - 포스팅 삭제
-  - 테스트 경로 : http://127.0.0.1:5000/posting
-``` python
-# Headers에 토큰 입력
-"KEY" : "Authorization"
-"VALUE" Bearer eyJ0eXAiO~생략
-```
-- class PostingResource(Resource)
-  - GET
-  - 내 포스팅 보기
-  - 테스트 경로 : http://127.0.0.1:5000/posting
+  - 테스트 경로 : http://127.0.0.1:5000/posting/<int:post_id>
 ``` python
 # Headers에 토큰 입력
 "KEY" : "Authorization"
