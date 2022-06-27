@@ -164,7 +164,36 @@ class PostingInsertListResource(Resource) :
         
         }, 200
 
-class PostingUpdateDeleteResource(Resource) :
+class PostingReadUpdateDeleteResource(Resource) :
+    # 포스팅 상세 보기
+    @jwt_required()
+    def get(self, post_id) :
+        userId = get_jwt_identity()
+        try :
+            # 클라이언트로부터 데이터 받기
+            connection = get_connection()
+            query = '''select p.*, u.email, u.name, count(l.postingId) as '좋아요' from posting p
+                        join users u on p.userId=u.id
+                        left join likes l on p.id= l.postingId
+                        where p.userId=%s and p.id=%s group by p.id;'''
+            record = (userId, post_id)
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query, record)
+            result_list = cursor.fetchall()  
+            if len(result_list) < 1 :  
+                return { "알림" : "포스팅의 권한이 없습니다."}
+            connection.commit()
+            cursor.close()
+            connection.close()
+            i = 0
+            for record in result_list :
+                result_list[i]['createdAt'] = record['createdAt'].isoformat()
+                result_list[i]['updatedAt'] = record['updatedAt'].isoformat()
+                i += 1
+        except Exception as e :
+            return {'error' : str(e)}, 500
+        return { "포스팅 상세 보기" : result_list}
+
 	# 포스팅 수정
     @jwt_required()
     def put(self, post_id) :
@@ -173,6 +202,7 @@ class PostingUpdateDeleteResource(Resource) :
         # photo(file), content(text)
         content = request.form['content']
 
+        # 소유자 권한 설정 (소유자이면 아래 코드 실행)
         connection = get_connection()
         query = '''select id, userId from posting where userId=%s and id=%s;'''
         record = (userId, post_id)
@@ -282,12 +312,11 @@ class PostingUpdateDeleteResource(Resource) :
                         connection.commit()
                         cursor.close()
                         connection.close()
-                        
+
                     except Exception as e :
                         return {'error' : str(e)}, 500
         else :
             return { "알림" : "수정 권한이 없습니다."}
-
 
         return {'알림' : '포스팅이 수정되었습니다.' }
 
@@ -297,6 +326,7 @@ class PostingUpdateDeleteResource(Resource) :
         try :
             userId = get_jwt_identity()
 
+            # 소유자 권한 설정 (소유자이면 아래 코드 실행)
             connection = get_connection()
             query = '''select id, userId from posting where userId=%s and id=%s;'''
             record = (userId, post_id)

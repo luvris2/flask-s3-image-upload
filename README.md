@@ -4,9 +4,10 @@
   - 회원가입, 로그인, 로그아웃 기능
 - 포스팅 관련
   - 포스팅 작성, 수정, 삭제
-  - 내 포스팅 보기, 친구들의 포스팅 보기
+  - 내 포스팅 보기, 포스팅 상세 보기, 친구들의 포스팅 보기
   - 이미지 포스팅시 이미지의 객체를 탐지하여 태그 자동 생성하기
   - 태그 검색하기
+  - 좋아요 / 좋아요 해제
 - 친구 관련
   - 친구 추가, 해제
 ---
@@ -42,6 +43,11 @@
    - id : 기본 인덱스 (INT/ PK, NN, UN, AI)
    - tagId : 태그 식별 ID (INT/ UN)
    - postingId : 포스팅 식별 ID (INT/ UN)
+### Table : likes
+- Columns
+   - id : 기본 인덱스 (INT/ PK, NN, UN, AI)
+   - userId : 태그 식별 ID (INT/ UN)
+   - postingId : 포스팅 식별 ID (INT/ UN)
 ---
 
 # 파일 구조
@@ -52,6 +58,8 @@
     - rekognition.py : 이미지 객체 탐지 테스트 소스 코드
     - posting.py : 포스팅 작성, 수정, 삭제, 내 포스팅 보기, 이미지 업로드시 이미지 객체를 탐지하여 태그 자동 생성
     - tag.py : 태그 검색
+    - user.py : 회원가입, 로그인, 로그아웃
+    - likes.py : 좋아요 표시, 좋아요 해제
   - ref 폴더
     - config.py : 가상환경 설정 (토큰)
     - test.py : SQL Query 테스트 코드
@@ -159,9 +167,20 @@ content : 작성내용
 "KEY" : "Authorization"
 "VALUE" Bearer eyJ0eXAiO~생략
 ```
-- class PostingUpdateDeleteResource(Resource)
+- class PostingReadUpdateDeleteResource(Resource)
+  - GET
+  - 포스팅 상세 보기
+    - 좋아요 수 표시
+  - 테스트 경로 : http://127.0.0.1:5000/posting/<int:post_id>
+``` python
+# Headers에 토큰 입력
+"KEY" : "Authorization"
+"VALUE" Bearer eyJ0eXAiO~생략
+```
+- class PostingReadUpdateDeleteResource(Resource)
   - PUT
   - 포스팅 내용 수정
+    - 포스팅의 소유자 일 경우에만 수정 소스코드 실행
     - 이미지가 없을 경우
         - 내용만 수정
     - 이미지가 있을 경우
@@ -178,9 +197,10 @@ content : 작성내용
 photo : 이미지 파일 업로드
 content : 작성내용 
 ```
-- class PostingUpdateDeleteResource(Resource)
+- class PostingReadUpdateDeleteResource(Resource)
   - DELETE
   - 포스팅 삭제
+    - 포스팅의 소유자 일 경우에만 삭제 소스코드 실행
   - 테스트 경로 : http://127.0.0.1:5000/posting/<int:post_id>
 ``` python
 # Headers에 토큰 입력
@@ -232,4 +252,26 @@ content : 작성내용
 # Params
 keyword : 검색어
 page : 페이지 번호, 페이지당 25개씩 출력
+```
+**likes.py**
+- class LikesResource(Resource)
+  - POST
+  - 좋아요 표시
+    - 좋아요 중복 방지
+  - 테스트 경로 : http://127.0.0.1:5000/likes/<int:post_id>
+```
+``` python
+# Headers에 토큰 입력
+"KEY" : "Authorization"
+"VALUE" Bearer eyJ0eXAiO~생략
+```
+- class LikesResource(Resource)
+  - DELETE
+  - 좋아요 해제
+  - 테스트 경로 : http://127.0.0.1:5000/likes/<int:post_id>
+```
+``` python
+# Headers에 토큰 입력
+"KEY" : "Authorization"
+"VALUE" Bearer eyJ0eXAiO~생략
 ```

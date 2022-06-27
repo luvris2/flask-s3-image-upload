@@ -65,10 +65,11 @@ class followResource(Resource) :
             #         '''
             query = '''
                         select  u.name as '작성자', p.imageUrl as '사진', p.content as '포스팅 내용',
-                        p.createdAt as '작성일', p.updatedAt as '수정일' from posting p
+                        p.createdAt as '작성일', p.updatedAt as '수정일', count(l.postingId) as '좋아요' from posting p
                         join follow f on p.userId = f.followeeId
                         join users u on u.id=f.followeeId
-                        where f.followerId = %s;
+                        left join likes l on l.postingId=p.id
+                        where f.followerId = %s group by p.id ;
                     '''
             record = (user_id, ) # tuple
             cursor = connection.cursor(dictionary=True)
