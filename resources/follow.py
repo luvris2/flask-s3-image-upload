@@ -57,27 +57,33 @@ class followResource(Resource) :
         try :
             connection = get_connection()
             user_id = get_jwt_identity()
+            # query = '''
+            #             select * from posting p
+            #             join follow f
+            #             on p.userId = f.followeeId
+            #             where followerId = %s;
+            #         '''
             query = '''
-                        select * from memo join follow
-                        on memo.user_id = follow.followee_id
-                        where follower_id = %s;
+                        select  u.name as '작성자', p.imageUrl as '사진', p.content as '포스팅 내용',
+                        p.createdAt as '작성일', p.updatedAt as '수정일' from posting p
+                        join follow f on p.userId = f.followeeId
+                        join users u on u.id=f.followeeId
+                        where f.followerId = %s;
                     '''
             record = (user_id, ) # tuple
             cursor = connection.cursor(dictionary=True)
             cursor.execute(query, record)
             result_list = cursor.fetchall()
-
             if len(result_list) == 0 :
                 return { "알림" : "팔로우한 친구가 없습니다."}
 
             i = 0
             for record in result_list :
-                result_list[i]['created_at'] = record['created_at'].isoformat()
-                result_list[i]['updated_at'] = record['updated_at'].isoformat()
+                result_list[i]['작성일'] = record['작성일'].isoformat()
+                result_list[i]['수정일'] = record['수정일'].isoformat()
                 i += 1
             cursor.close()
             connection.close()
-
         except mysql.connector.Error as e :
             print(e)
             cursor.close()
@@ -85,7 +91,6 @@ class followResource(Resource) :
             return {"error" : str(e)}, 503 #HTTPStatus.SERVICE_UNAVAILABLE
 
         return{
-            "result" : "success",
             "메모 내용" : result_list
         }, 200
     

@@ -3,6 +3,8 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from ref.config import Config
 
+from resources.tag import TagSearchResource
+
 from resources.user import UserRegisterResource, UserLoginResource, UserLogoutResource, jwt_blocklist
 
 from resources.image import FileUploadResource
@@ -36,6 +38,9 @@ api.add_resource(UserLogoutResource, '/users/logout')
 api.add_resource(FileUploadResource, '/upload')
 api.add_resource(PostingResource, '/posting')
 api.add_resource(ObjectDetectionResource, '/object_detection')
+
+api.add_resource(TagSearchResource, '/posting/search/tag')
+
 api.add_resource(followResource, '/follow')
 
 if __name__ == '__main__' :

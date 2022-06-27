@@ -150,8 +150,8 @@ class PostingResource(Resource) :
 
 
         return {'알림' : '포스팅이 작성되었습니다.',
-                'image_url' : Config.S3_LOCATION + file.filename }
-                #"label" : response["Labels"]}
+                'image_url' : Config.S3_LOCATION + file.filename,
+                "label" : response["Labels"] }
 
 	# 포스팅 수정
     @jwt_required()
